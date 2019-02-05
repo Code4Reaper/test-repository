@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<style>
+.loader {
+  border: 16px solid white;
+  border-radius: 50%;
+  border-left:16px solid green;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 1s linear 50;
+}
+
+.loader2{
+  border-radius: 50%;
+  border-right:16px solid indigo;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: antispin 2s linear infinite;
+  animation: antispin 1s linear 50;	  
+}
+
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes antispin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); }
+}
+
+</style>
+	<title></title>
+</head>
+
+
+<body>
+<center><div class="loader2 loader"></div></center>
+</body>
+</html>
