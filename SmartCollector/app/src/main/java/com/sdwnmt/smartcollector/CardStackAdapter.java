@@ -30,6 +30,7 @@ public class CardStackAdapter extends FragmentStatePagerAdapter {
     public Fragment getItem(int position) {
         BlankFragment blankFragment = new BlankFragment();
         Bundle bundle = new Bundle();
+        bundle.putString("pid", plotList.get(position).getId());
         bundle.putString("Name", plotList.get(position).getPlotOwner());
         bundle.putString("Plot", plotList.get(position).getPlotNo());
         bundle.putString("Address", plotList.get(position).getAddress());
