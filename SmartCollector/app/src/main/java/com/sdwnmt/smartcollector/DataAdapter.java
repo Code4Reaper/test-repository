@@ -46,7 +46,7 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
 
         viewHolder.tv2.setText("Address :- "+plotList.get(i).getAddress());
         viewHolder.tv1.setText("Plot No. :- "+plotList.get(i).getPlotNo());
-        viewHolder.tv3.setText("Plot Owner :- "+plotList.get(i).getPlotOwner());
+        viewHolder.tv3.setText("Owner :- "+plotList.get(i).getPlotOwner());
 
     }
 
