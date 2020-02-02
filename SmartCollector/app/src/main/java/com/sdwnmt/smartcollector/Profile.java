@@ -1,20 +1,10 @@
 package com.sdwnmt.smartcollector;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Looper;
-import android.provider.Settings;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,34 +14,12 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.ResolvableApiException;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionDeniedResponse;
-import com.karumi.dexter.listener.PermissionGrantedResponse;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.single.PermissionListener;
 import com.onesignal.OSNotificationAction;
 import com.onesignal.OSNotificationOpenResult;
 import com.onesignal.OSPermissionSubscriptionState;
 import com.onesignal.OSSubscriptionObserver;
 import com.onesignal.OSSubscriptionStateChanges;
 import com.onesignal.OneSignal;
-import com.sdwnmt.smartcollector.Modal.ACK.locACK;
 import com.sdwnmt.smartcollector.Modal.SendPlayerId;
 
 import org.json.JSONObject;
@@ -62,21 +30,17 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.sdwnmt.smartcollector.Home.notifyrecyclerView;
-
 public class Profile extends AppCompatActivity implements OSSubscriptionObserver {
 
-    private TextView Wname,zone,route,vehicle,email,t1,t2;
+    private TextView Wname,zone,route,vehicle,email,t1,t2,t3;
     private Button btn1,btn2;
     public UserSes userSes;
     private RecyclerView notifyrecyclerView;
@@ -220,27 +184,25 @@ public class Profile extends AppCompatActivity implements OSSubscriptionObserver
         final View v1 = getLayoutInflater().inflate(R.layout.notifymodal, null);
         t1 = v1.findViewById(R.id.title);
         t2 = v1.findViewById(R.id.button);
-//        clear = v1.findViewById(R.id.clear);
-
-
-
+        t3 = v1.findViewById(R.id.textView);
+//        clear = v1.findViewById(R.id.clear)
         notifyrecyclerView = v1.findViewById(R.id.notify);
 
-        notifyrecyclerView.setHasFixedSize(true);
-        notifyrecyclerView.setLayoutManager(new LinearLayoutManager(Profile.this));
-
-        Collections.reverse(notifyList);
-        notificationAdapter = new NotificationAdapter(Profile.this,notifyList);
-
-        notifyrecyclerView.setAdapter(notificationAdapter);
+        if (notifyList.isEmpty()){
+            notifyrecyclerView.setVisibility(View.INVISIBLE);
+        }else{
+            t3.setVisibility(View.INVISIBLE);
+            notifyrecyclerView.setHasFixedSize(true);
+            notifyrecyclerView.setLayoutManager(new LinearLayoutManager(Profile.this));
+            Collections.reverse(notifyList);
+            notificationAdapter = new NotificationAdapter(Profile.this,notifyList);
+            notifyrecyclerView.setAdapter(notificationAdapter);
+        }
 
         Log.e("abc", "pop");
         malert.setView(v1);
-
-
         final AlertDialog dialog = malert.create();
         dialog.setCanceledOnTouchOutside(false);
-
         dialog.show();
         t2.setOnClickListener(new View.OnClickListener() {
             @Override

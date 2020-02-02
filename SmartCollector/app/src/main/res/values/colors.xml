@@ -4,9 +4,11 @@
     <color name="colorPrimaryDark">#673AB7</color>
     <color name="colorAccent">#673AB7</color>
     <color name="fab">#673AB7</color>
+    <color name="bf">#3454D1</color>
     <color name="welcomenavcolor">#0B405C</color>
+    <color name="collectedcard">#CAFFCA</color>
+    <color name="Notcollectedcard">#FFD2D2</color>
 
-    <color name="collectedcard">#4CC01A</color>
 
 
 </resources>

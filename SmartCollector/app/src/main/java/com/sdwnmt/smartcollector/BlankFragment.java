@@ -139,9 +139,31 @@ public class BlankFragment extends Fragment {
                          performScroll(pos,resp);
 
                          if((mPager.getAdapter().getCount() -1) != (mPager.getCurrentItem())) {
+
                              mPager.setCurrentItem(mPager.getCurrentItem() + 1, true);
                          }else{
-                             pop();
+                             AlertDialog.Builder builder
+                                     = new AlertDialog
+                                     .Builder(getActivity());
+                             builder.setMessage("All the garbage is collected.\nEnter the weight of Dry and Wet garbage and  End the trip");
+                             builder.setTitle("Alert !");
+                             builder.setCancelable(false);
+                             builder
+                                     .setPositiveButton(
+                                             "ok",
+                                             new DialogInterface
+                                                     .OnClickListener() {
+                                                 @Override
+                                                 public void onClick(DialogInterface dialog,
+                                                                     int which)
+                                                 {
+                                                     pop();
+                                                 }
+                                             });
+                             // Create the Alert dialog
+                             AlertDialog alertDialog = builder.create();
+                             // Show the Alert Dialog box
+                             alertDialog.show();
                          }
 
                 } catch (Exception e) {
@@ -193,15 +215,15 @@ public class BlankFragment extends Fragment {
                                     Log.e("Tag", "imgchange called");
                                     View view = recyclerView.getLayoutManager().findViewByPosition(finalI);
                                     ((ImageView) view.findViewById(R.id.img)).setImageResource(R.drawable.greendust);
-                                    ((CardView) view.findViewById(R.id.Card)).setCardBackgroundColor(Color.parseColor("#cbe2c0"));
+                                    ((CardView) view.findViewById(R.id.Card)).setCardBackgroundColor(Color.parseColor("#CAFFCA"));
                                 }else{
                                     Log.e("Tag", "not collected");
                                     View view = recyclerView.getLayoutManager().findViewByPosition(finalI);
 
-                                    ((CardView) view.findViewById(R.id.Card)).setCardBackgroundColor(Color.parseColor("#FF3D2B"));
-                                    ((TextView) view.findViewById(R.id.name)).setTextColor(Color.parseColor("#FFFFFF"));
-                                    ((TextView) view.findViewById(R.id.plot_no)).setTextColor(Color.parseColor("#FFFFFF"));
-                                    ((TextView) view.findViewById(R.id.address)).setTextColor(Color.parseColor("#FFFFFF"));
+                                    ((CardView) view.findViewById(R.id.Card)).setCardBackgroundColor(Color.parseColor("#FFD2D2"));
+                                    ((TextView) view.findViewById(R.id.name)).setTextColor(Color.parseColor("#000000"));
+                                    ((TextView) view.findViewById(R.id.plot_no)).setTextColor(Color.parseColor("#000000"));
+                                    ((TextView) view.findViewById(R.id.plot)).setTextColor(Color.parseColor("#000000"));
 
                                 }
                             } catch (Exception e) {

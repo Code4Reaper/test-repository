@@ -3,35 +3,26 @@ package com.sdwnmt.smartcollector;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
-import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.MotionEvent;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
@@ -49,8 +40,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.vision.CameraSource;
-import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.karumi.dexter.Dexter;
@@ -59,14 +48,12 @@ import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
-import com.sdwnmt.smartcollector.Modal.ACK.Acknowledgement;
 import com.sdwnmt.smartcollector.Modal.ACK.locACK;
 import com.sdwnmt.smartcollector.Modal.PlotList;
 import com.sdwnmt.smartcollector.Modal.Result;
 
 import java.lang.reflect.Type;
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -75,28 +62,17 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.sdwnmt.smartcollector.MainActivity.plotLists;
-
 public class Home extends AppCompatActivity {
 
     public static ViewPagerCustomDuration mPager ;
     List<PlotList> plotLists;
     private CardStackAdapter mAdapter ;
     private  UserSes userSes;
-    public static Result result;
-    private AlertDialog dialog;
-    private Button b1,b2,clear;
-    public String json;
-    public FrameLayout notification;
+    private long backPressedTime;
     public static RecyclerView.LayoutManager layoutManager;
     public static RecyclerView recyclerView,notifyrecyclerView;
-    private String pid, player_id, title = "0", message, body;
-    private HashSet<String> pids;
-    private HashSet<String> uncollected;
-    private List<String> notifyList;
     private DataAdapter dataAdapter;
-    private NotificationAdapter notificationAdapter;
-    private UserNotify userNotify;
+
     //location views
     private String mLastUpdateTime;
     // location updates interval - 10sec
@@ -136,8 +112,6 @@ public class Home extends AppCompatActivity {
         initRecycler();
         init();
         startLocationButtonClick();
-
-
     }
 
     private void initRecycler(){
@@ -156,7 +130,6 @@ public class Home extends AppCompatActivity {
         @Override
         public void transformPage(View page, float position) {
 
-
             if (position < -1){    // [-Infinity,-1)
                 // This page is way off-screen to the left.
                 page.setAlpha(0);
@@ -167,18 +140,15 @@ public class Home extends AppCompatActivity {
                 page.setPivotX(page.getWidth());
                 page.setRotationY(-90 * Math.abs(position));
 
-
             }
             else if (position <= 1){    // (0,1]
                 page.setAlpha(1);
                 page.setPivotX(0);
                 page.setRotationY(90 * Math.abs(position));
-
             }
             else {    // (1,+Infinity]
                 // This page is way off-screen to the right.
                 page.setAlpha(0);
-
             }
             if (Math.abs(position) <= 0.5){
                 page.setScaleY(Math.max(0.4f,1-Math.abs(position)));
@@ -186,8 +156,6 @@ public class Home extends AppCompatActivity {
             else if (Math.abs(position) <= 1){
                 page.setScaleY(Math.max(0.4f,Math.abs(position)));
             }
-
-
         }
 
     }
@@ -224,9 +192,6 @@ public class Home extends AppCompatActivity {
 
             double Lat = mCurrentLocation.getLatitude();
             double Lng = mCurrentLocation.getLongitude();
-
-            // location last updated time
-            // Toast.makeText(getContext(), "Hello"+String.valueOf(Lat)+" "+String.valueOf(Lng), Toast.LENGTH_SHORT).show();
 
             sendLocation(userSes.getWorkerid(), String.valueOf(Lat), String.valueOf(Lng), userSes.getToken());
         }
@@ -357,6 +322,16 @@ public class Home extends AppCompatActivity {
         startActivity(intent);
     }
 
+    @Override
+    public void onBackPressed() {
+        if (backPressedTime + 2000 > System.currentTimeMillis()) {
+            super.onBackPressed();
+            return;
+        }else {
+            Toast.makeText(this, "Hit Back Again To Exit !", Toast.LENGTH_SHORT).show();
+        }
+        backPressedTime = System.currentTimeMillis();
+    }
 
     @Override
     public void onResume() {
@@ -369,8 +344,6 @@ public class Home extends AppCompatActivity {
         }
 
         updateLocationUI();
-
-
     }
 
     private boolean checkPermissions() {
@@ -387,8 +360,6 @@ public class Home extends AppCompatActivity {
             // pausing location updates
             stopLocationUpdates();
         }
-
-
     }
 
     @Override
@@ -413,6 +384,9 @@ public class Home extends AppCompatActivity {
         }
 
         Log.e("Tag", "Destroyed!!");
+    }
+    public  void warning(){
+
     }
 }
 
