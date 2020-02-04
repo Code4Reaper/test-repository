@@ -19,11 +19,11 @@ public interface ApiInterface {
 
     @POST("collectData")
     @FormUrlEncoded
-    Call<Acknowledgement> collectedGarbage(@Field("worker_id")String wid,@Query("token") String toke, @Field("plot_id")String plot, @Field("response") String resp);
+    Call<Acknowledgement> collectedGarbage(@Field("worker_id")String wid,@Query("token") String toke, @Field("plot_id")String plot, @Field("response") String resp,@Field("lati") String latitude,@Field("long") String longitude);
 
     @POST("endTrip")
     @FormUrlEncoded
-    Call<endTripAck> endTripData(@Query("token") String token, @Field("worker_id") String worker, @Field("dry")String dry, @Field("wet") String wet, @Field("date")String Date, @Field("ward") String ward, @Field("list") String List);
+    Call<endTripAck> endTripData(@Query("token") String token, @Field("worker_id") String worker, @Field("dry")String dry, @Field("wet") String wet, @Field("date")String Date, @Field("ward") String ward);
 
     @POST("getWorkerLocation")
     @FormUrlEncoded

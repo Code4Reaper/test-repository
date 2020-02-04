@@ -4,6 +4,7 @@ package com.sdwnmt.smartcollector;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -37,6 +38,12 @@ import com.sdwnmt.smartcollector.Modal.ACK.Acknowledgement;
 import com.sdwnmt.smartcollector.Modal.ACK.endTripAck;
 import com.sdwnmt.smartcollector.Modal.PlotList;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -73,6 +80,7 @@ public class BlankFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_blank, container, false);
+        extractLocation();
         userSes = new UserSes(getContext());
         Gson gson = new Gson();
            String json = userSes.getJson();
@@ -91,8 +99,10 @@ public class BlankFragment extends Fragment {
         btn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                collectGarbage("1");
                 extractLocation();
+//                Log.e("Latitude",String.valueOf(lat));
+//                Log.e("Longtitude",String.valueOf(log));
+                collectGarbage("1");
 //                layout.setBackgroundColor(ContextCompat.getColor(getContext(),R.color.collectedcard));
 
             }
@@ -100,8 +110,9 @@ public class BlankFragment extends Fragment {
         btn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+               extractLocation();
                 collectGarbage("0");
-                extractLocation();
+
 
             }
         });
@@ -121,15 +132,21 @@ public class BlankFragment extends Fragment {
                 if (plotLists.get(i).getId().equals(pid)) {
                     Log.e("called", "collect garbage");
 //                    Toast.makeText(getContext(), "collect garbage", Toast.LENGTH_SHORT).show();
-                    notifyGarbageCollected(i,resp);
+                    try {
+                        notifyGarbageCollected(i, resp);
+                    }catch (Exception e){
+                        Toast.makeText(getContext(), "Tap the button again", Toast.LENGTH_SHORT).show();
+                    }
                     break;
                 }
             }
         }
 
-    private void notifyGarbageCollected(final int pos, final String resp) {
+    private void notifyGarbageCollected(final int pos, final String resp) throws Exception {
+        extractLocation();
+        saveOffine(pid,resp,lat.toString(),log.toString());
         ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
-        Call<Acknowledgement> call = apiInterface.collectedGarbage(userSes.getWorkerid(), userSes.getToken(),pid,resp);
+        Call<Acknowledgement> call = apiInterface.collectedGarbage(userSes.getWorkerid(), userSes.getToken(),pid,resp,lat.toString(),log.toString());
         call.enqueue(new Callback<Acknowledgement>() {
             @Override
             public void onResponse(Call<Acknowledgement> call, Response<Acknowledgement> response) {
@@ -142,10 +159,11 @@ public class BlankFragment extends Fragment {
 
                              mPager.setCurrentItem(mPager.getCurrentItem() + 1, true);
                          }else{
+                             readFromFile();
                              AlertDialog.Builder builder
                                      = new AlertDialog
                                      .Builder(getActivity());
-                             builder.setMessage("All the garbage is collected.\nEnter the weight of Dry and Wet garbage and  End the trip");
+                             builder.setMessage("All the garbage is collected.\nEnter the amount/weight of total Dry and Wet garbage collected and end the trip");
                              builder.setTitle("Alert !");
                              builder.setCancelable(false);
                              builder
@@ -287,8 +305,7 @@ public class BlankFragment extends Fragment {
                             alertDialog.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-//                                    endTrip(dry.getText().toString(), wet.getText().toString(), d, NotCollected);
-//
+                                    endTrip(dry.getText().toString(), wet.getText().toString(),d);
                                 }
                             });
                             alertDialog.setPositiveButton("No", new DialogInterface.OnClickListener() {
@@ -308,17 +325,9 @@ public class BlankFragment extends Fragment {
 
 
     }
-    private void endTrip(String dry, String wet, String date, String list) {
-
+    private void endTrip(String dry, String wet, String date) {
         ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
-
-//        list = "-1,-2";
-//        Log.e("Is empty",list);
-        if (list.equals("")){
-            list = "-1,-2";
-            Log.e("Null",list);
-        }
-        Call<endTripAck> call = apiInterface.endTripData(userSes.getToken(), userSes.getWorkerid(), dry, wet, date, userSes.getWard(), list);
+        Call<endTripAck> call = apiInterface.endTripData(userSes.getToken(), userSes.getWorkerid(), dry, wet, date, userSes.getWard());
         call.enqueue(new Callback<endTripAck>() {
             @Override
             public void onResponse(Call<endTripAck> call, Response<endTripAck> response) {
@@ -361,11 +370,43 @@ public class BlankFragment extends Fragment {
                 if (location!= null) {
                     lat = location.getLatitude();
                     log = location.getLongitude();
-//                    Toast.makeText(getContext(),String.valueOf(lat), Toast.LENGTH_SHORT).show();
-//                    Toast.makeText(getContext(), String.valueOf(log), Toast.LENGTH_SHORT).show();
                 }
             }
         });
+    }
+
+    private void readFromFile(){
+        try {
+//            new FileOutputStream("Notification.txt").close();
+            FileInputStream fileInputStream = getContext().openFileInput("database.txt");
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String NewNote;
+
+            while ((NewNote = bufferedReader.readLine()) != null){
+                if(!NewNote.equals(""));
+                Toast.makeText(getContext(), NewNote, Toast.LENGTH_SHORT).show();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveOffine(String pid,String res,String la,String lo){
+        FileOutputStream fileoutputStream = null;
+        try {
+            fileoutputStream = getContext().openFileOutput("database.txt",Context.MODE_APPEND);
+            fileoutputStream.write(("\n"+pid).getBytes());
+            fileoutputStream.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

@@ -52,6 +52,9 @@ import com.sdwnmt.smartcollector.Modal.ACK.locACK;
 import com.sdwnmt.smartcollector.Modal.PlotList;
 import com.sdwnmt.smartcollector.Modal.Result;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.Date;
@@ -112,6 +115,17 @@ public class Home extends AppCompatActivity {
         initRecycler();
         init();
         startLocationButtonClick();
+        FileOutputStream fop = null;
+        try {
+            fop = this.openFileOutput("database.txt",MODE_PRIVATE);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        try {
+            fop.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void initRecycler(){
