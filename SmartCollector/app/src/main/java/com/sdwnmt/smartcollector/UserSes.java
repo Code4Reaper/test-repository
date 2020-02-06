@@ -8,14 +8,17 @@ public class UserSes {
     private SharedPreferences sharedPreferences;
     private Context context;
     private String json;
+    private String trip;
 
     public UserSes (Context context){
         this.context = context;
         sharedPreferences = context.getSharedPreferences("userinfo",Context.MODE_PRIVATE);
     }
+
     public void removeUser(){
         sharedPreferences.edit().clear().apply();
     }
+
 
     public String getToken() {
         token = sharedPreferences.getString("toke","");
@@ -116,5 +119,15 @@ public class UserSes {
     public void setRoute(String route) {
         this.route = route;
         sharedPreferences.edit().putString("Route",route).apply();
+    }
+
+    public void setTripSes(String trip){
+        this.trip = trip;
+        sharedPreferences.edit().putString("Trip",trip).apply();
+    }
+
+    public String getTripSes(){
+        trip = sharedPreferences.getString("Trip","");
+        return trip;
     }
 }

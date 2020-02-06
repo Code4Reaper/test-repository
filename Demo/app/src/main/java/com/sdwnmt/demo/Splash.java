@@ -14,7 +14,6 @@ import android.widget.TextView;
 public class Splash extends AppCompatActivity {
         private ImageView iv;
         public UserSes userSes;
-        private PermissionSes permissionSes;
         public TextView tv;
         Animation a,a2;
         public Window window;
@@ -22,11 +21,10 @@ public class Splash extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         userSes = new UserSes(Splash.this);
-        permissionSes = new PermissionSes(this);
         setContentView(R.layout.activity_splash);
         if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.LOLLIPOP) {
             window = this.getWindow();
-            window.setStatusBarColor(this.getResources().getColor(R.color.nav));
+            window.setStatusBarColor(this.getResources().getColor(R.color.lognav));
         }
         tv = findViewById(R.id.tv);
         iv = findViewById(R.id.imageView6);

@@ -3,11 +3,14 @@ package com.sdwnmt.demo;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.sdwnmt.demo.Modal.Response;
+
 public class UserSes {
     private String fullname,age,email,zoneid,jsonString;
     private SharedPreferences sharedPreferences;
     private Context context;
     private String permission;
+    private String resp;
     private String json;
 
     public UserSes(Context context){
@@ -43,19 +46,14 @@ public class UserSes {
         return jsonString;
     }
 
-    public void setAge(String age) {
-        this.age = age;
-        sharedPreferences.edit().putString("age",age).apply();
+    public void setResp(String resp){
+        this.resp = resp;
+        sharedPreferences.edit().putString("response",resp).apply();
     }
 
-    public String getJson() {
-        json = sharedPreferences.getString("plotList","");
-        return json;
-    }
-
-    public void setJson(String json) {
-        this.json = json;
-        sharedPreferences.edit().putString("plotList",json).apply();
+    public String getResp(){
+        resp = sharedPreferences.getString("response","");
+        return resp;
     }
 
 

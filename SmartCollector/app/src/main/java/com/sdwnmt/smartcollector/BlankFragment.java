@@ -116,14 +116,12 @@ public class BlankFragment extends Fragment {
 
             }
         });
-
-
-
         assert getArguments() != null;
         name.setText(getArguments().getString("Name"));
         plot.setText(getArguments().getString("Plot"));
         address.setText(getArguments().getString("Address"));
         pid = getArguments().getString("pid");
+
         return view;
     }
 
@@ -159,7 +157,7 @@ public class BlankFragment extends Fragment {
 
                              mPager.setCurrentItem(mPager.getCurrentItem() + 1, true);
                          }else{
-                             readFromFile();
+                             Toast.makeText(getContext(), extractData(), Toast.LENGTH_SHORT).show();
                              AlertDialog.Builder builder
                                      = new AlertDialog
                                      .Builder(getActivity());
@@ -290,11 +288,8 @@ public class BlankFragment extends Fragment {
 //                        }
 //                        Log.e("pop", uncollected.toString().replaceAll("\\[", "").replaceAll("\\]", ""));
 //                        final String NotCollected = uncollected.toString().replaceAll("\\[", "").replaceAll("\\]", "");
-                        Date date = new Date();
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("IST"));
-                        final String d = simpleDateFormat.format(date);
-                        Log.e("pop", d);
+
+                        Log.e("pop", getCurrDate());
                         //Toast.makeText(getContext(), dry.getText().toString(), Toast.LENGTH_SHORT).show();
                         if ((dry.getText().toString().equals("")) || (wet.getText().toString().equals(""))) {
                             Toast.makeText(getContext(), "Fields cannot be empty", Toast.LENGTH_SHORT).show();
@@ -305,7 +300,7 @@ public class BlankFragment extends Fragment {
                             alertDialog.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    endTrip(dry.getText().toString(), wet.getText().toString(),d);
+                                    endTrip(dry.getText().toString(), wet.getText().toString(),getCurrDate());
                                 }
                             });
                             alertDialog.setPositiveButton("No", new DialogInterface.OnClickListener() {
@@ -375,7 +370,8 @@ public class BlankFragment extends Fragment {
         });
     }
 
-    private void readFromFile(){
+    private String extractData(){
+        StringBuffer str = new StringBuffer();
         try {
 //            new FileOutputStream("Notification.txt").close();
             FileInputStream fileInputStream = getContext().openFileInput("database.txt");
@@ -384,22 +380,22 @@ public class BlankFragment extends Fragment {
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String NewNote;
 
-            while ((NewNote = bufferedReader.readLine()) != null){
-                if(!NewNote.equals(""));
-                Toast.makeText(getContext(), NewNote, Toast.LENGTH_SHORT).show();
+            while ((NewNote = bufferedReader.readLine()) != null) {
+                str.append(NewNote);
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return str.toString();
     }
 
     private void saveOffine(String pid,String res,String la,String lo){
         FileOutputStream fileoutputStream = null;
         try {
             fileoutputStream = getContext().openFileOutput("database.txt",Context.MODE_APPEND);
-            fileoutputStream.write(("\n"+pid).getBytes());
+            fileoutputStream.write((pid+"`"+res+"`"+la+"`"+lo+"~").getBytes());
             fileoutputStream.close();
 
         } catch (FileNotFoundException e) {
@@ -407,6 +403,14 @@ public class BlankFragment extends Fragment {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private String getCurrDate(){
+        Date date = new Date();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("IST"));
+        String d = simpleDateFormat.format(date);
+        return d;
     }
 
 }

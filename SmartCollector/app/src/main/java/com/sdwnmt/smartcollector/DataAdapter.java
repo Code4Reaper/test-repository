@@ -73,8 +73,6 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
             img = itemView.findViewById(id.img);
             cardView = itemView.findViewById(id.Card);
         }
-
-
     }
 
     public void removeItem(int pos){

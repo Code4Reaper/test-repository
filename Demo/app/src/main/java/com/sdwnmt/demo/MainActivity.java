@@ -135,30 +135,30 @@ public class MainActivity extends AppCompatActivity  {
         });
     }
 
-    private void performLogin(String pass) {
-
-        ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
-        Call<UserLog> call = apiInterface.getLoginInfo(pass);
-        call.enqueue(new Callback<UserLog>() {
-            @Override
-            public void onResponse(Call<UserLog> call, Response<UserLog> response) {
-                if (response.body().getResponse().equals("ok")) {
-                    Toast.makeText(MainActivity.this, response.body().getResponse(), Toast.LENGTH_SHORT).show();
-
-                    Intent i = new Intent(MainActivity.this, User_Home.class);
-                    startActivity(i);
-                    finish();
-                } else {
-                    Toast.makeText(MainActivity.this, response.body().getResponse(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<UserLog> call, Throwable t) {
-
-            }
-        });
-    }
+//    private void performLogin(String pass) {
+//
+//        ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
+//        Call<UserLog> call = apiInterface.getLoginInfo(pass);
+//        call.enqueue(new Callback<UserLog>() {
+//            @Override
+//            public void onResponse(Call<UserLog> call, Response<UserLog> response) {
+//                if (response.body().getResponse().equals("ok")) {
+//                    Toast.makeText(MainActivity.this, response.body().getResponse(), Toast.LENGTH_SHORT).show();
+//
+//                    Intent i = new Intent(MainActivity.this, User_Home.class);
+//                    startActivity(i);
+//                    finish();
+//                } else {
+//                    Toast.makeText(MainActivity.this, response.body().getResponse(), Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<UserLog> call, Throwable t) {
+//
+//            }
+//        });
+//    }
 
     @Override
     protected void onDestroy() {

@@ -3,7 +3,9 @@
     <color name="colorPrimary">#fff</color>
     <color name="bfgray">#F7F4F2</color>
     <color name="colorAccent">#4479ab</color>
-    <color name="nav">#0B405C</color>
+    <color name="nav">#292D3E</color>
     <color name="myColor">#4479ab</color>
     <color name="myColorDark">#6DA7D5</color>
+    <color name="lognav">#9FB9FC</color>
+
 </resources>

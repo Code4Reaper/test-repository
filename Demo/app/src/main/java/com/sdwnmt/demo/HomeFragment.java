@@ -1,6 +1,5 @@
 package com.sdwnmt.demo;
 
-
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +15,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sdwnmt.demo.Modal.Acknowledge;
 import com.sdwnmt.demo.Modal.SendPlayerId;
 import com.onesignal.OSNotificationAction;
@@ -25,21 +26,23 @@ import com.onesignal.OSSubscriptionObserver;
 import com.onesignal.OSSubscriptionStateChanges;
 import com.onesignal.OneSignal;
 
-import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.lang.reflect.Type;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class HomeFragment extends Fragment implements OSSubscriptionObserver {
+public class HomeFragment extends Fragment  {
     private String body,title,message,plot_id, player_id;
     private TextView uname,mob,plotNo,add,mail,t1,t2;
-    private Button logout,collect,notCollect,close;
+    private Button collect,notCollect,close;
     private UserSes userSes;
+    private com.sdwnmt.demo.Modal.Response resp;
     private JSONObject jsonObject;
     private NoteSes noteSes;
-    private ImageView notify;
+    private ImageView notify,logout;
     private boolean flag;
     private Animation animation;
 
@@ -64,28 +67,25 @@ public class HomeFragment extends Fragment implements OSSubscriptionObserver {
         logout = view.findViewById(R.id.logout);
         notify = view.findViewById(R.id.notify);
 
-        String str = userSes.getJsonString();
+
         try {
-          jsonObject = new JSONObject(str);
+            Gson gson = new Gson();
+            Type type = new TypeToken<com.sdwnmt.demo.Modal.Response>(){}.getType();
+            resp = gson.fromJson(userSes.getResp(),type);
+            uname.setText(resp.getName());
+            mob.setText(resp.getMobile());
+            plotNo.setText(resp.getPlot());
+            mail.setText(resp.getEmail());
+            add.setText(resp.getAddress());
 
-//            Toast.makeText(getContext(), jsonObject.getString("id"), Toast.LENGTH_SHORT).show();
-          plot_id = jsonObject.getString("id");
-            //Toast.makeText(getContext(), plot_id, Toast.LENGTH_SHORT).show();
-
-            uname.setText(jsonObject.getString("name"));
-            mob.setText(jsonObject.getString("mobile"));
-            plotNo.setText(jsonObject.getString("plot"));
-            mail.setText(jsonObject.getString("email"));
-            add.setText(jsonObject.getString("address"));
-
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        makeCall();
-        noteSes = new NoteSes(getContext());
-        if(body != null) {
-            noteSes.setNote(body);
-        }
+//        makeCall();
+//        noteSes = new NoteSes(getContext());
+//        if(body != null) {
+//            noteSes.setNote(body);
+//        }
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,38 +102,37 @@ public class HomeFragment extends Fragment implements OSSubscriptionObserver {
         return view;
     }
     public void logout(){
-        userSes.removeUser();
-        Intent i = new Intent(getActivity(), MainActivity.class);
+//        userSes.removeUser();
+        Intent i = new Intent(getActivity(), LoginActivity.class);
         startActivity(i);
         getActivity().finish();
         getActivity().overridePendingTransition(0,0);
     }
 
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        OneSignal.addSubscriptionObserver(this);
-        OneSignal.startInit(getContext())
-                .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
-                .unsubscribeWhenNotificationsAreDisabled(true)
-                .setNotificationOpenedHandler(new ExampleNotificationOpenedHandler())
-                .init();
-        Log.e("init","onCreate");
-
-
-
-        OSPermissionSubscriptionState status = OneSignal.getPermissionSubscriptionState();
-        status.getPermissionStatus().getEnabled();
-
-        status.getSubscriptionStatus().getSubscribed();
-        status.getSubscriptionStatus().getUserSubscriptionSetting();
-        player_id = status.getSubscriptionStatus().getUserId();
-        status.getSubscriptionStatus().getPushToken();
-        OneSignal.sendTag("user_id", "1234");
-//        Toast.makeText(getContext(), player_id, Toast.LENGTH_SHORT).show();
-
-    }
+//    @Override
+//    public void onCreate(@Nullable Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        OneSignal.addSubscriptionObserver(this);
+//        OneSignal.startInit(getContext())
+//                .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
+//                .unsubscribeWhenNotificationsAreDisabled(true)
+//                .setNotificationOpenedHandler(new ExampleNotificationOpenedHandler())
+//                .init();
+//        Log.e("init","onCreate");
+//
+//
+//
+//        OSPermissionSubscriptionState status = OneSignal.getPermissionSubscriptionState();
+//        status.getPermissionStatus().getEnabled();
+//
+//        status.getSubscriptionStatus().getSubscribed();
+//        status.getSubscriptionStatus().getUserSubscriptionSetting();
+//        player_id = status.getSubscriptionStatus().getUserId();
+//        status.getSubscriptionStatus().getPushToken();
+//        OneSignal.sendTag("user_id", "1234");
+////        Toast.makeText(getContext(), player_id, Toast.LENGTH_SHORT).show();
+//
+//    }
 
     private void makeCall(){
 //        Toast.makeText(getContext(), player_id, Toast.LENGTH_SHORT).show();
@@ -150,48 +149,50 @@ public class HomeFragment extends Fragment implements OSSubscriptionObserver {
             }
         });
     }
-    public void onOSSubscriptionChanged(OSSubscriptionStateChanges stateChanges) {
-        if (!stateChanges.getFrom().getSubscribed() &&
-                stateChanges.getTo().getSubscribed()) {
-            new AlertDialog.Builder(getContext())
-                    .setMessage("You've successfully subscribed to push notifications!")
-                    .show();
-            // get player ID
-            stateChanges.getTo().getUserId();
 
-            Toast.makeText(getContext(), player_id, Toast.LENGTH_SHORT).show();
+//    public void onOSSubscriptionChanged(OSSubscriptionStateChanges stateChanges) {
+//        if (!stateChanges.getFrom().getSubscribed() &&
+//                stateChanges.getTo().getSubscribed()) {
+//            new AlertDialog.Builder(getContext())
+//                    .setMessage("You've successfully subscribed to push notifications!")
+//                    .show();
+//            // get player ID
+//            stateChanges.getTo().getUserId();
+//
+//            Toast.makeText(getContext(), player_id, Toast.LENGTH_SHORT).show();
+//
+//        }
+//
+//        Log.i("Debug", "onOSPermissionChanged: " + stateChanges);
+//    }
+//
+//    class ExampleNotificationOpenedHandler implements OneSignal.NotificationOpenedHandler {
+//        // This fires when a notification is opened by tapping on it.
+//        @Override
+//        public void notificationOpened(OSNotificationOpenResult result) {
+//            OSNotificationAction.ActionType actionType = result.action.type;
+//            JSONObject data = result.notification.payload.additionalData;
+//
+//            title = result.notification.payload.title;
+//
+//            body = result.notification.payload.body;
+//            Log.e("notification",body);
+//            String customKey;
+//
+//            Log.e("abc","notificationOpened");
+//
+//            if (data != null) {
+//                customKey = data.optString("customkey", null);
+//                if (customKey != null)
+//                    Log.i("OneSignalExample", "customkey set with value: " + customKey);
+//
+//            }
+//            if (actionType == OSNotificationAction.ActionType.ActionTaken)
+//                Log.i("OneSignalExample", "Button pressed with id: " + result.action.actionID);
+//
+//        }
+//    }
 
-        }
-
-        Log.i("Debug", "onOSPermissionChanged: " + stateChanges);
-    }
-
-    class ExampleNotificationOpenedHandler implements OneSignal.NotificationOpenedHandler {
-        // This fires when a notification is opened by tapping on it.
-        @Override
-        public void notificationOpened(OSNotificationOpenResult result) {
-            OSNotificationAction.ActionType actionType = result.action.type;
-            JSONObject data = result.notification.payload.additionalData;
-
-            title = result.notification.payload.title;
-
-            body = result.notification.payload.body;
-            Log.e("notification",body);
-            String customKey;
-
-            Log.e("abc","notificationOpened");
-
-            if (data != null) {
-                customKey = data.optString("customkey", null);
-                if (customKey != null)
-                    Log.i("OneSignalExample", "customkey set with value: " + customKey);
-
-            }
-            if (actionType == OSNotificationAction.ActionType.ActionTaken)
-                Log.i("OneSignalExample", "Button pressed with id: " + result.action.actionID);
-
-        }
-    }
     public void showPop(){
         Log.e("abc","OnCreateView");
         AlertDialog.Builder malert = new AlertDialog.Builder(getContext());
