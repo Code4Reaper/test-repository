@@ -5,6 +5,7 @@ import com.sdwnmt.smartcollector.Modal.ACK.endTripAck;
 import com.sdwnmt.smartcollector.Modal.ACK.locACK;
 import com.sdwnmt.smartcollector.Modal.SendPlayerId;
 import com.sdwnmt.smartcollector.Modal.WorkerDet;
+import com.sdwnmt.smartcollector.Modal.ACK.syncACK;
 
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -32,4 +33,9 @@ public interface ApiInterface {
     @POST("sendWorkerPlayerId")
     @FormUrlEncoded
     Call<SendPlayerId> sendPlayerID(@Field("player_id") String playid, @Field("worker_id") String pid);
+
+    @POST("syncNow")
+    @FormUrlEncoded
+    Call<syncACK> syncData(@Field("worker_id") String pid,@Field("date") String date,@Field("token") String token,@Field("unsynced_data") String sync);
+
 }

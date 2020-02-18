@@ -385,7 +385,6 @@ public class Home extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-
         Log.e("Tag", "Fragment stopped");
     }
 
@@ -396,11 +395,9 @@ public class Home extends AppCompatActivity {
 //            dialog.dismiss();
         } catch (Exception e) {
         }
-
         Log.e("Tag", "Destroyed!!");
     }
     public  void warning(){
-
     }
 }
 
