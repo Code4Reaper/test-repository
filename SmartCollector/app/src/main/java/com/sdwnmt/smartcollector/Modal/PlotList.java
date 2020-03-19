@@ -6,6 +6,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class PlotList {
 
+
     @SerializedName("id")
     @Expose
     private String id;
@@ -18,6 +19,16 @@ public class PlotList {
     @SerializedName("name")
     @Expose
     private String plotOwner;
+
+    private boolean cardFlag;
+
+    public boolean isCardFlag() {
+        return cardFlag;
+    }
+
+    public void setCardFlag(boolean cardFlag) {
+        this.cardFlag = cardFlag;
+    }
 
     public String getPlotOwner() {
         return plotOwner;

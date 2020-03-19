@@ -20,6 +20,18 @@ public class Acknowledgement {
     @Expose
     String Response;
 
+    @SerializedName("success")
+    @Expose
+    String Success;
+
+    public String getSuccess() {
+        return Success;
+    }
+
+    public void setSuccess(String success) {
+        Success = success;
+    }
+
     public String getPlotid() {
         return plotid;
     }

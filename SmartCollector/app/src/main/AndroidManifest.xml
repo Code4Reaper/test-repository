@@ -13,8 +13,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Home"></activity>
-        <activity android:name=".Profile" />
+        <activity android:name=".Home"
+            android:screenOrientation="portrait"></activity>
+        <activity android:name=".Profile"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".Collector_Home"
             android:label="@string/title_activity_collector__home"

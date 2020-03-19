@@ -20,7 +20,7 @@ public interface ApiInterface {
 
     @POST("collectData")
     @FormUrlEncoded
-    Call<Acknowledgement> collectedGarbage(@Field("worker_id")String wid,@Query("token") String toke, @Field("plot_id")String plot, @Field("response") String resp,@Field("lati") String latitude,@Field("long") String longitude);
+    Call<Acknowledgement> collectedGarbage(@Field("worker_id")String wid,@Query("token") String toke, @Field("plot_id")String plot, @Field("response") String resp,@Field("lati") String latitude,@Field("long") String longitude,@Field("date") String Date,@Field("Time") String time);
 
     @POST("endTrip")
     @FormUrlEncoded

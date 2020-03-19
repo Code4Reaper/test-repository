@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -74,7 +75,7 @@ public class BlankFragment extends Fragment {
     private boolean monitoringConnectivity = false;
     private ConnectivityManager.NetworkCallback connectivityCallback;
     Button btn1, btn2, b2;
-    Double lat, log;
+    public static Double lat, log;
     private View view;
     private AlertDialog dialog;
     ConstraintLayout layout;
@@ -101,8 +102,6 @@ public class BlankFragment extends Fragment {
         Type type = new TypeToken<List<PlotList>>() {
         }.getType();
         plotLists = gson.fromJson(json, type);
-
-
         layout = view.findViewById(R.id.layout);
         name = view.findViewById(R.id.name);
         plot = view.findViewById(R.id.plot);
@@ -114,6 +113,8 @@ public class BlankFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 extractLocation();
+                Log.e("Time",getCurrDate());
+//                Log.e("Time",time.toString());
                 collectGarbage("1");
 //                layout.setBackgroundColor(ContextCompat.getColor(getContext(),R.color.collectedcard));
 
@@ -124,8 +125,6 @@ public class BlankFragment extends Fragment {
             public void onClick(View view) {
                 extractLocation();
                 collectGarbage("0");
-
-
             }
         });
         assert getArguments() != null;
@@ -183,26 +182,30 @@ public class BlankFragment extends Fragment {
         }
     }
 
+
     private void notifyGarbageCollected(final int pos, final String resp) throws Exception {
         extractLocation();
         if (isConnected) {
             Log.e("notifyGarbageCollected", "collected");
             ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
-            Call<Acknowledgement> call = apiInterface.collectedGarbage(userSes.getWorkerid(), userSes.getToken(), pid, resp, lat.toString(), log.toString());
+            Call<Acknowledgement> call = apiInterface.collectedGarbage(userSes.getWorkerid(), userSes.getToken(), pid, resp, lat.toString(), log.toString(),getCurrDate(),getCurrTime());
             call.enqueue(new Callback<Acknowledgement>() {
                 @Override
                 public void onResponse(Call<Acknowledgement> call, Response<Acknowledgement> response) {
-                    Log.e("response", response.body().getResponse());
+                    try{
+//                        assert response.body() != null;
+//                        Log.e("response", response.body().getResponse());
 
                     try {
-                        if (response.body().getResponse().equals("1")) {
+
                             performScroll(pos, resp);
                             rotateCube(pos);
-                        } else {
-                            Toast.makeText(getContext(), "Something went wrong...", Toast.LENGTH_SHORT).show();
-                        }
+
                     } catch (Exception e) {
-                        Log.e("notifyGarbageCollected", e.toString());
+                        Toast.makeText(getContext(), "something went wrong..please try again", Toast.LENGTH_SHORT).show();
+                    }
+                    }catch(Exception e){
+                        Log.e("collectData",e.toString());
                     }
                 }
 
@@ -229,7 +232,7 @@ public class BlankFragment extends Fragment {
         } else {
             if (isConnected) {
                 if(!extractData().equals("")) {
-                    Toast.makeText(getContext(),extractData(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getContext(),extractData(), Toast.LENGTH_SHORT).show();
                     ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
 //                    Toast.makeText(getContext(), extractData(), Toast.LENGTH_SHORT).show();
                     Call<syncACK> call = apiInterface.syncData(userSes.getWorkerid(), getCurrDate(), userSes.getToken(), extractData());
@@ -240,7 +243,7 @@ public class BlankFragment extends Fragment {
                                 if (response.body().getStatus().equals("1")) {
                                     Toast.makeText(getContext(), "Synced successfully", Toast.LENGTH_SHORT).show();
                                 } else {
-                                    Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "Something went wrong...please try again", Toast.LENGTH_SHORT).show();
                                 }
                             }catch (Exception e){
                                 Log.e("SyncNow",e.toString());
@@ -324,12 +327,13 @@ public class BlankFragment extends Fragment {
                                 if (resp.equals("1")) {
                                     Log.e("Tag", "imgchange called");
                                     View view = recyclerView.getLayoutManager().findViewByPosition(finalI);
+                                    ((TextView)view.findViewById(R.id.cardFlag)).setText("1");
                                     ((ImageView) view.findViewById(R.id.img)).setImageResource(R.drawable.greendust);
                                     ((CardView) view.findViewById(R.id.Card)).setCardBackgroundColor(Color.parseColor("#CAFFCA"));
                                 } else {
                                     Log.e("Tag", "not collected");
                                     View view = recyclerView.getLayoutManager().findViewByPosition(finalI);
-
+                                    ((TextView)view.findViewById(R.id.cardFlag)).setText("1");
                                     ((CardView) view.findViewById(R.id.Card)).setCardBackgroundColor(Color.parseColor("#FFD2D2"));
                                     ((TextView) view.findViewById(R.id.name)).setTextColor(Color.parseColor("#000000"));
                                     ((TextView) view.findViewById(R.id.plot_no)).setTextColor(Color.parseColor("#000000"));
@@ -477,7 +481,7 @@ public class BlankFragment extends Fragment {
         FileOutputStream fileoutputStream = null;
         try {
             fileoutputStream = getContext().openFileOutput("database.txt", Context.MODE_APPEND);
-            fileoutputStream.write((pid + "`" + res + "`" + la + "`" + lo + "~").getBytes());
+            fileoutputStream.write((pid + "`" + res + "`" + la + "`" + lo + "`" + getCurrTime() + "~").getBytes());
             fileoutputStream.close();
 
         } catch (FileNotFoundException e) {
@@ -487,12 +491,22 @@ public class BlankFragment extends Fragment {
         }
     }
 
+
+
     private String getCurrDate() {
         Date date = new Date();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("IST"));
         String d = simpleDateFormat.format(date);
         return d;
+    }
+
+    private String getCurrTime(){
+        Date time = new Date();
+        SimpleDateFormat sdf=new SimpleDateFormat("hh:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("IST"));
+        String Time = sdf.format(time);
+        return Time;
     }
 
     private void checkConnectivity() {

@@ -33,7 +33,7 @@ public class ProfileFragment extends Fragment {
             userSes = new UserSes(getContext());
 
         }catch (NullPointerException npe){
-            Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Something went wrong..please try again", Toast.LENGTH_SHORT).show();
         }
 
 

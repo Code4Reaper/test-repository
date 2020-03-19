@@ -8,5 +8,8 @@
     <string name="title_activity_collector__home">Collector_Home</string>
     <string name="title_notifications">Notifications</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="collected">Collected</string>
+    <string name="not_collected">Not Collected</string>
+    <string name="revert_the_collection_status_for_this_plot">Revert the collection status for this plot.</string>
 
 </resources>

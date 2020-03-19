@@ -89,7 +89,7 @@ public class Profile extends AppCompatActivity implements OSSubscriptionObserver
         try{
             userSes = new UserSes(Profile.this);
         }catch (NullPointerException npe){
-            Toast.makeText(Profile.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+            Toast.makeText(Profile.this, "Something went wrong..please try again", Toast.LENGTH_SHORT).show();
         }
 
         makeCall();
