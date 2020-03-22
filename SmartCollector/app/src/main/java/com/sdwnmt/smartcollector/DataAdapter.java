@@ -29,6 +29,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.sdwnmt.smartcollector.Modal.ACK.Acknowledgement;
 import com.sdwnmt.smartcollector.Modal.PlotList;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -53,6 +56,7 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
         this.plotList = plotList;
         this.mcontext = mcontext;
         userSes = new UserSes(mcontext);
+        setHasStableIds(true);
 
     }
 
@@ -76,7 +80,7 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 if(viewHolder.tv4.getText().equals("1")){
-                    revertChanges(String.valueOf(i),viewHolder);
+                        revertChanges(i, viewHolder);
                 }else{
                     Toast.makeText(mcontext, "Not yet Visited", Toast.LENGTH_SHORT).show();
                 }
@@ -88,6 +92,17 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
     @Override
     public int getItemCount() {
         return plotList.size();
+    }
+
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -107,9 +122,8 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
         }
     }
 
-    private void revertChanges(final String pos, final ViewHolder viewHolder){
+    private void revertChanges(final int pos, final ViewHolder viewHolder){
         Button b1,b2,b3;
-
         android.app.AlertDialog.Builder malert = new android.app.AlertDialog.Builder(mcontext);
         LayoutInflater layoutInflater = (LayoutInflater) mcontext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View v1 = layoutInflater.inflate(R.layout.fragment_revert_modal, null);
@@ -121,15 +135,31 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
             public void onClick(View v) {
                 Log.e("Time",getCurrDate());
 //                Log.e("Time",time.toString());
-                updateData("1",pos,viewHolder);
+                if(BlankFragment.isConnected) {
+                    updateData("1", pos, viewHolder);
+                }else{
+                    revertOffline(plotList.get(pos).getId(),"1");
+                    viewHolder.img.setImageResource(R.drawable.greendust);
+                    viewHolder.cardView.setCardBackgroundColor(Color.parseColor("#CAFFCA"));
+                    dialog.dismiss();
+                    Log.e("revertOffline","saved offline");
+                }
 //                layout.setBackgroundColor(ContextCompat.getColor(getContext(),R.color.collectedcard));
             }
         });
+
         b2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                extractLocation();
-                updateData("0",pos,viewHolder);
+                if(BlankFragment.isConnected) {
+                    updateData("0", pos, viewHolder);
+                }else{
+                    revertOffline(plotList.get(pos).getId(),"0");
+                    viewHolder.cardView.setCardBackgroundColor(Color.parseColor("#FFD2D2"));
+                    viewHolder.img.setImageResource(drawable.reddust);
+                    dialog.dismiss();
+                    Log.e("revertOffline","saved offline");
+                }
             }
         });
         malert.setView(v1);
@@ -150,9 +180,9 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
     }
 
 
-    private void updateData(final String resp, String pos, final ViewHolder viewHolder){
+    private void updateData(final String resp, int pos, final ViewHolder viewHolder){
         ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
-        Call<Acknowledgement> call = apiInterface.collectedGarbage(userSes.getWorkerid(), userSes.getToken(),pos, resp, BlankFragment.lat.toString(), BlankFragment.log.toString(),getCurrDate(),getCurrTime());
+        Call<Acknowledgement> call = apiInterface.collectedGarbage(userSes.getWorkerid(), userSes.getToken(),plotList.get(pos).getId(), resp, BlankFragment.lat.toString(), BlankFragment.log.toString(),getCurrDate(),getCurrTime());
         call.enqueue(new Callback<Acknowledgement>() {
             @Override
             public void onResponse(Call<Acknowledgement> call, Response<Acknowledgement> response) {
@@ -164,13 +194,10 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
                             if(resp.equals("1")){
                                 viewHolder.cardView.setCardBackgroundColor(Color.parseColor("#CAFFCA"));
                                 viewHolder.img.setImageResource(drawable.greendust);
-
                             }
-
                             if(resp.equals("0")){
                                 viewHolder.cardView.setCardBackgroundColor(Color.parseColor("#FFD2D2"));
                                 viewHolder.img.setImageResource(drawable.reddust);
-
                             }
                             dialog.dismiss();
                             Toast.makeText(mcontext, "Changes saved.", Toast.LENGTH_SHORT).show();
@@ -192,6 +219,20 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
 //               Toast.makeText(getContext(), "Please Check your Internet Connection and try again..", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void revertOffline(String pid, String res){
+        FileOutputStream fileoutputStream = null;
+        try {
+            fileoutputStream = mcontext.openFileOutput("revertData.txt", Context.MODE_APPEND);
+            fileoutputStream.write((pid + "`" + res + "`" + BlankFragment.lat.toString() + "`" + BlankFragment.log.toString() + "`" + getCurrTime() + "~").getBytes());
+            fileoutputStream.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private String getCurrDate() {

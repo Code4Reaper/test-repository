@@ -115,15 +115,21 @@ public class Home extends AppCompatActivity {
         initRecycler();
         init();
         startLocationButtonClick();
-        FileOutputStream fop = null;
         try {
-            fop = this.openFileOutput("database.txt",MODE_PRIVATE);
-        } catch (FileNotFoundException e) {
+            clearFiles();
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void clearFiles() throws Exception {
+        FileOutputStream fop,fop2 = null;
         try {
+            fop = this.openFileOutput("database.txt",MODE_PRIVATE);
             fop.close();
-        } catch (IOException e) {
+            fop2 = this.openFileOutput("revertData.txt",MODE_PRIVATE);
+            fop2.close();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

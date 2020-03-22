@@ -71,7 +71,7 @@ public class BlankFragment extends Fragment {
 
     private TextView name, plot, address;
     private FusedLocationProviderClient client;
-    private boolean isConnected = true;
+    public static boolean isConnected = true;
     private boolean monitoringConnectivity = false;
     private ConnectivityManager.NetworkCallback connectivityCallback;
     Button btn1, btn2, b2;
@@ -168,6 +168,9 @@ public class BlankFragment extends Fragment {
     }
 
     private void collectGarbage(String resp) {
+        Log.e("Id check",pid);
+        Log.e("Size",String.valueOf(plotLists.size()));
+
         for (int i = 0; i < plotLists.size(); i++) {
             if (plotLists.get(i).getId().equals(pid)) {
                 Log.e("called", "collect garbage");
@@ -197,7 +200,6 @@ public class BlankFragment extends Fragment {
 //                        Log.e("response", response.body().getResponse());
 
                     try {
-
                             performScroll(pos, resp);
                             rotateCube(pos);
 
@@ -231,11 +233,11 @@ public class BlankFragment extends Fragment {
             mPager.setCurrentItem(mPager.getCurrentItem() + 1, true);
         } else {
             if (isConnected) {
-                if(!extractData().equals("")) {
+                if((!extractData().equals("")) || (!extractRevertedData().equals(""))) {
 //                    Toast.makeText(getContext(),extractData(), Toast.LENGTH_SHORT).show();
                     ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
 //                    Toast.makeText(getContext(), extractData(), Toast.LENGTH_SHORT).show();
-                    Call<syncACK> call = apiInterface.syncData(userSes.getWorkerid(), getCurrDate(), userSes.getToken(), extractData());
+                    Call<syncACK> call = apiInterface.syncData(userSes.getWorkerid(), getCurrDate(), userSes.getToken(), extractData() + extractRevertedData());
                     call.enqueue(new Callback<syncACK>() {
                         @Override
                         public void onResponse(Call<syncACK> call, Response<syncACK> response) {
@@ -475,6 +477,27 @@ public class BlankFragment extends Fragment {
             e.printStackTrace();
         }
         return str.toString();
+    }
+
+    private String extractRevertedData(){
+        StringBuffer str2 = new StringBuffer();
+        try {
+//            new FileOutputStream("Notification.txt").close();
+            FileInputStream fileInputStream = getContext().openFileInput("revertData.txt");
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String NewNote;
+
+            while ((NewNote = bufferedReader.readLine()) != null) {
+                str2.append(NewNote);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return str2.toString();
     }
 
     private void saveOffine(String pid, String res, String la, String lo) {
